@@ -4,6 +4,8 @@ import { MaterialReactTable, MRT_FilterFn } from "material-react-table";
 import { MRT_Localization_JA } from 'material-react-table/locales/ja'
 import Link from "next/link";
 
+import { mkConfig, generateCsv, download } from 'export-to-csv';
+
 export default function Home() {
   type DataType = {
     id: string;
@@ -55,6 +57,28 @@ export default function Home() {
     // メモリ解放のためにURLを破棄
     document.body.removeChild(link);
   }
+
+
+  // export-to-csvの設定
+  const csvConfig = mkConfig({ 
+    useBom: true,           // Excelでの文字化けを防止（BOM設定）
+    filename: 'etc_export',  // ダウンロードされるファイル名
+    // columnHeaders: ['ID', '名前', 'メールアドレス'], // ヘッダーをカスタマイズ
+    useKeysAsHeaders: true, // オブジェクトのキーをヘッダーとして使用
+  });
+
+  const handleExport = (data: any[]) => {
+    // データが空なら何もしない（警告を出す）
+    if (!data || data.length === 0) {
+      alert("エクスポートするデータがありません");
+      return;
+    }
+
+     console.log('data for csv export:', data);
+
+    const csv = generateCsv(csvConfig)(data); // データをCSV文字列に変換
+    download(csvConfig)(csv);                // ブラウザでダウンロード実行
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans">
@@ -230,7 +254,12 @@ export default function Home() {
         <button
         className="px-4 py-2 bg-blue-500 text-white rounded"
         onClick={() => exportCSV(data)}
-        >Download CSV</button>
+        >Download CSV(manual)</button>
+
+         <button
+        className="px-4 py-2 bg-blue-500 text-white rounded"
+        onClick={() => handleExport(data)}
+        >Download CSV(export to csv)</button>
       </main>
     </div>
   );
