@@ -32,6 +32,30 @@ export default function Home() {
     });
   };
 
+  // const exportCSV = (records: string[][]) => {
+  const exportCSV = (records: any[]) => {
+    // データをカンマ区切り、改行区切りの文字列に変換
+    let data = records.map((record) => {
+      const row = Array.isArray(record) ? record : Object.values(record);
+      return row.join(",");
+      // record.join(",")).join("\r\n");
+    }).join("\r\n");
+
+    // BOM (Byte Order Mark) を作成して文字化けを防止
+    let bom = new Uint8Array([0xef, 0xbb, 0xbf]);
+    let blob = new Blob([bom, data], { type: "text/csv" });
+
+    // ダウンロード用URLの生成とリンクのシミュレート
+    let url = (window.URL || window.webkitURL).createObjectURL(blob);
+    let link = document.createElement('a');
+    link.href = url;
+    link.download = "data.csv";
+    document.body.appendChild(link);
+    link.click();
+    // メモリ解放のためにURLを破棄
+    document.body.removeChild(link);
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans">
       <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-center py-32 px-16 bg-gray-100 sm:items-start">
@@ -199,6 +223,14 @@ export default function Home() {
           ]}
           data={data}
         />
+
+        <hr />
+
+        <p className="text-black mt-10">CSVダウンロード</p>
+        <button
+        className="px-4 py-2 bg-blue-500 text-white rounded"
+        onClick={() => exportCSV(data)}
+        >Download CSV</button>
       </main>
     </div>
   );
