@@ -1,10 +1,12 @@
 'use client'
 
-import { MaterialReactTable, MRT_FilterFn } from "material-react-table";
+import { MaterialReactTable, MRT_FilterFn, type MRT_Row } from "material-react-table";
 import { MRT_Localization_JA } from 'material-react-table/locales/ja'
 import Link from "next/link";
+import { Box, Button } from '@mui/material';
 
 import { mkConfig, generateCsv, download } from 'export-to-csv';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 
 export default function Home() {
   type DataType = {
@@ -18,6 +20,14 @@ export default function Home() {
     { id: "0001", name: "サービス", status: "作成中", link: "/detail/1" },
     { id: "0002", name: "プロダクト", status: "申請中", link: "/detail/2" },
     { id: "0003", name: "コンテンツ", status: "公開", link: "/detail/3" },
+    { id: "0004", name: "コンテンツ", status: "公開", link: "/detail/4" },
+    { id: "0005", name: "コンテンツ", status: "公開", link: "/detail/5" },
+    { id: "0006", name: "コンテンツ", status: "公開", link: "/detail/6" },
+    { id: "0007", name: "コンテンツ", status: "公開", link: "/detail/7" },
+    { id: "0008", name: "コンテンツ", status: "公開", link: "/detail/8" },
+    { id: "0009", name: "コンテンツ", status: "公開", link: "/detail/9" },
+    { id: "0010", name: "コンテンツ", status: "公開", link: "/detail/10" },
+    { id: "0011", name: "コンテンツ", status: "公開", link: "/detail/11" },
   ];
 
 
@@ -34,55 +44,19 @@ export default function Home() {
     });
   };
 
-  // const exportCSV = (records: string[][]) => {
-  const exportCSV = (records: any[]) => {
-    // データをカンマ区切り、改行区切りの文字列に変換
-    let data = records.map((record) => {
-      const row = Array.isArray(record) ? record : Object.values(record);
-      return row.join(",");
-      // record.join(",")).join("\r\n");
-    }).join("\r\n");
-
-    // BOM (Byte Order Mark) を作成して文字化けを防止
-    let bom = new Uint8Array([0xef, 0xbb, 0xbf]);
-    let blob = new Blob([bom, data], { type: "text/csv" });
-
-    // ダウンロード用URLの生成とリンクのシミュレート
-    let url = (window.URL || window.webkitURL).createObjectURL(blob);
-    let link = document.createElement('a');
-    link.href = url;
-    link.download = "data.csv";
-    document.body.appendChild(link);
-    link.click();
-    // メモリ解放のためにURLを破棄
-    document.body.removeChild(link);
-  }
 
 
-  // export-to-csvの設定
-  const csvConfig = mkConfig({ 
-    useBom: true,           // Excelでの文字化けを防止（BOM設定）
-    filename: 'etc_export',  // ダウンロードされるファイル名
-    // columnHeaders: ['ID', '名前', 'メールアドレス'], // ヘッダーをカスタマイズ
-    useKeysAsHeaders: true, // オブジェクトのキーをヘッダーとして使用
-  });
 
-  const handleExport = (data: any[]) => {
-    // データが空なら何もしない（警告を出す）
-    if (!data || data.length === 0) {
-      alert("エクスポートするデータがありません");
-      return;
-    }
 
-     console.log('data for csv export:', data);
 
-    const csv = generateCsv(csvConfig)(data); // データをCSV文字列に変換
-    download(csvConfig)(csv);                // ブラウザでダウンロード実行
-  };
+
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans">
       <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-center py-32 px-16 bg-gray-100 sm:items-start">
+        <Link href="/page2" className="bg-blue-400 text-xl font-bold text-white p-4 mb-4 rounded">
+          CSV Export Sampleへ
+        </Link>
         <h2 className="text-black">Table 1</h2>
         <MaterialReactTable
           localization={MRT_Localization_JA}
@@ -248,18 +222,6 @@ export default function Home() {
           data={data}
         />
 
-        <hr />
-
-        <p className="text-black mt-10">CSVダウンロード</p>
-        <button
-        className="px-4 py-2 bg-blue-500 text-white rounded"
-        onClick={() => exportCSV(data)}
-        >Download CSV(manual)</button>
-
-         <button
-        className="px-4 py-2 bg-blue-500 text-white rounded"
-        onClick={() => handleExport(data)}
-        >Download CSV(export to csv)</button>
       </main>
     </div>
   );
